@@ -49,3 +49,10 @@ host = "127.0.0.1"             # "0.0.0.0" samo ako ispred nema reverse proxy-ja
 port = 8787
 #token = "..."                 # najmanje 16 znakova:  python3 -c 'import secrets; print(secrets.token_urlsafe(32))'
 timeout_seconds = 180          # toliko tišine (oko 3 propuštena signala) pa alarm
+
+# --- Sajt: planirana isključenja za tvoju adresu (komanda: powerout site) ---------------------------
+
+[site]
+host = "127.0.0.1"             # sajt je za tebe; "0.0.0.0" bi ga otvorio svima u kućnoj mreži
+port = 8750                    # otvaraš ga na http://localhost:8750
+poll_minutes = 30              # koliko često se čitaju najave distributera (ne manje od 5)

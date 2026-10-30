@@ -180,7 +180,23 @@ class Watchdog:
         _at_least(self, "timeout_seconds", 3)
 
 
-_SECTIONS = (General, Telegram, Email, Power, Heartbeat, Watchdog)
+@dataclass
+class Site:
+    section: ClassVar[str] = "site"
+
+    host: str = "127.0.0.1"  # the page is for one person; anything else on the network can then open it too
+    port: int = 8750
+    poll_minutes: float = 30.0  # how often the distributor's pages are read (they change a few times a day)
+
+    def __post_init__(self) -> None:
+        if not 0 < self.port < 65536:
+            raise ConfigError("[site] port: mora biti između 1 i 65535")
+        _single_word(self, "host")
+        _required(self, "host")
+        _at_least(self, "poll_minutes", 5)
+
+
+_SECTIONS = (General, Telegram, Email, Power, Heartbeat, Watchdog, Site)
 _OPTIONAL = (Telegram, Email)
 
 
@@ -221,6 +237,7 @@ class Config:
     power: Power
     heartbeat: Heartbeat
     watchdog: Watchdog
+    site: Site
     telegram: Telegram | None = None
     email: Email | None = None
     path: Path | None = None

@@ -25,6 +25,7 @@ class ParseTest(unittest.TestCase):
         self.assertEqual(cfg.general.delivery, "all")
         self.assertTrue(cfg.general.name)  # falls back to the hostname
         self.assertEqual(cfg.watchdog.host, "127.0.0.1")
+        self.assertEqual((cfg.site.host, cfg.site.port, cfg.site.poll_minutes), ("127.0.0.1", 8750, 30.0))
 
     def test_full_example(self):
         cfg = parse(
@@ -117,6 +118,15 @@ class ValidationTest(unittest.TestCase):
         self.assertRejected({"heartbeat": {"interval_seconds": 0}}, "interval_seconds")
         self.assertRejected({"power": {"debounce_seconds": -1}}, "debounce_seconds")
 
+    def test_the_site_section(self):
+        cfg = Config.from_dict({"site": {"host": "0.0.0.0", "port": 9000, "poll_minutes": 10}})
+        self.assertEqual((cfg.site.host, cfg.site.port, cfg.site.poll_minutes), ("0.0.0.0", 9000, 10.0))
+        self.assertRejected({"site": {"port": 0}}, "[site] port")
+        self.assertRejected({"site": {"port": 70000}}, "[site] port")
+        self.assertRejected({"site": {"poll_minutes": 1}}, "poll_minutes", "najmanje 5")  # be gentle with the distributor
+        self.assertRejected({"site": {"host": ""}}, "[site] host")
+        self.assertRejected({"site": {"host": "a b"}}, "[site] host")
+
     def test_required_fields(self):
         self.assertRejected({"telegram": {}}, "[telegram] token")
         self.assertRejected({"email": {"to": ["a@b"]}}, "[email] host")
@@ -197,6 +207,11 @@ class ShippedFilesTest(unittest.TestCase):
         self.assertEqual(cfg.email.host, "smtp.gmail.com")
         self.assertEqual(cfg.heartbeat.url, "https://watchdog.example.com/heartbeat")
         self.assertEqual(cfg.power.ups, "myups@localhost")
+
+    def test_the_site_unit_starts_the_site_for_the_user(self):
+        text = (ROOT / "systemd" / "powerout-site.user.service").read_text(encoding="utf-8")
+        self.assertRegex(text, r"(?m)^ExecStart=%h/\.local/share/powerout/venv/bin/powerout site$")
+        self.assertIn("WantedBy=default.target", text)  # a user unit, not a system one
 
     def test_the_service_units_match_what_the_program_expects(self):
         state_dirs = set()

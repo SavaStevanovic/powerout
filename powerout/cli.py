@@ -16,6 +16,7 @@ from .config import Config, ConfigError
 from .messages import Formatter
 from .notify import NotifyError, TelegramChannel, build_notifier
 from .power import SysfsSource, detect_source
+from .site import run_site
 from .watchdog import run_watchdog
 
 POWER_TEXT = {True: "mrežno napajanje (struja postoji)", False: "baterija (struje nema)", None: "nepoznato"}
@@ -48,6 +49,11 @@ def cmd_agent(args: argparse.Namespace) -> int:
 
 def cmd_watchdog(args: argparse.Namespace) -> int:
     run_watchdog(_load(args), _stop_on_signal())
+    return 0
+
+
+def cmd_site(args: argparse.Namespace) -> int:
+    run_site(_load(args, required=False), _stop_on_signal())
     return 0
 
 
@@ -115,6 +121,7 @@ def _parser() -> argparse.ArgumentParser:
 
     add("agent", cmd_agent, "pokreni agenta na lokaciji koja se prati")
     add("watchdog", cmd_watchdog, "pokreni stražara: javlja kada agent prestane da se javlja")
+    add("site", cmd_site, "pokreni sajt: proverava planirana isključenja struje za tvoju adresu")
     add("test", cmd_test, "pošalji probnu poruku na sve podešene kanale")
     add("telegram-chat-id", cmd_telegram_chat_id, "pronađi svoj Telegram chat_id (prvo pošalji botu /start)")
     check = add("check-power", cmd_check_power, "pokaži šta lokalni izvor trenutno očitava")

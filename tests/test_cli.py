@@ -157,7 +157,7 @@ class ParserTest(CliTestCase):
         with contextlib.redirect_stdout(out), self.assertRaises(SystemExit) as caught:
             main(["--help"])
         self.assertEqual(caught.exception.code, 0)
-        for command in ["agent", "watchdog", "test", "check-power", "telegram-chat-id"]:
+        for command in ["agent", "watchdog", "site", "test", "check-power", "telegram-chat-id"]:
             self.assertIn(command, out.getvalue())
 
     def test_a_command_is_required(self):

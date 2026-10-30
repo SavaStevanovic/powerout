@@ -1,0 +1,10 @@
+[Unit]
+Description=powerout site (planirana isključenja struje za tvoju adresu)
+
+[Service]
+ExecStart=%h/.local/share/powerout/venv/bin/powerout site
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

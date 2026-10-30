@@ -3,6 +3,7 @@
 import json
 import threading
 import time
+from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import NamedTuple
 
@@ -97,3 +98,8 @@ def wait_until(predicate, timeout=5.0):
             return True
         time.sleep(0.01)
     return predicate()
+
+
+def fixture(name: str) -> bytes:
+    """A page saved from the distributor's site (see tests/fixtures)."""
+    return (Path(__file__).parent / "fixtures" / name).read_bytes()
