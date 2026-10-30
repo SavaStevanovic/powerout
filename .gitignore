@@ -1,0 +1,8 @@
+__pycache__/
+*.egg-info/
+build/
+dist/
+.venv/
+
+# lozinke i tokeni: samo config.example.toml ide u git
+config.toml

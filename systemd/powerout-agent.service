@@ -1,0 +1,17 @@
+[Unit]
+Description=powerout agent (javlja kada nestane struja)
+Wants=network-online.target time-sync.target
+After=network-online.target time-sync.target
+
+[Service]
+ExecStart=/opt/powerout/bin/powerout agent
+# systemd sam čita config.toml (sa tokenima) kao root i daje ga samo ovom servisu
+LoadCredential=config.toml:/etc/powerout/config.toml
+DynamicUser=yes
+StateDirectory=powerout-agent
+NoNewPrivileges=yes
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

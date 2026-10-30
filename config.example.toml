@@ -1,0 +1,51 @@
+# powerout: primer podešavanja.
+#
+# Kopiraj ovaj fajl na jedno od mesta na kome ga program traži i prilagodi:
+#   ~/.config/powerout/config.toml   (za isprobavanje kao običan korisnik)
+#   /etc/powerout/config.toml        (za systemd servis)
+# U njemu su tokeni i lozinke, zato obavezno:  chmod 600 <fajl>
+
+[general]
+name = "Stan"                  # kako se lokacija zove u porukama; stražar po tome razlikuje lokacije
+                               # (svaka lokacija treba da ima svoje ime, i ne menjaj ga kasnije)
+timezone = "Europe/Belgrade"   # vreme u porukama; prazno = vreme sistema (na serveru je obično UTC)
+delivery = "all"               # "all": šalji na svaki kanal; "fallback": samo na prvi koji uspe (prvo e-mail, pa Telegram)
+
+# --- Kanali za obaveštenja: koristi Telegram, e-mail ili oba --------------------------------------
+
+[telegram]
+token = "123456789:AAH-zameni-tokenom-od-BotFather-a"
+chat_id = "123456789"          # ne znaš ga? upiši samo token i pokreni:  powerout telegram-chat-id
+
+#[email]
+#host = "smtp.gmail.com"
+#security = "ssl"              # "ssl" (port 465), "starttls" (587) ili "none" (25)
+#username = "ti@gmail.com"
+#password = "lozinka-aplikacije"   # Gmail traži "lozinku aplikacije" (App password), ne običnu lozinku
+#to = ["ti@gmail.com"]         # može i više adresa
+#sender = "ti@gmail.com"       # prazno = username
+
+# --- Agent: radi na uređaju na lokaciji koja se prati ---------------------------------------------
+
+[power]
+# Kako agent sam primećuje nestanak struje. Ima smisla samo na uređaju koji preživi nestanak struje
+# (laptop, računar ili Raspberry Pi na UPS-u). Običan desktop nema šta da očitava: njemu služi [heartbeat].
+source = "auto"                # auto | sysfs | nut | command | none
+#ups = "myups@localhost"       # NUT: ime UPS-a; "auto" ga koristi čim je upisano
+#command = "/usr/local/bin/mains-ok"   # izlazni kod 0 = ima struje, 1 = nema je, bilo šta drugo = nepoznato
+debounce_seconds = 10          # nestanak kraći od ovoga se ignoriše (treptaji mreže)
+
+[heartbeat]
+# Agent se redovno javlja stražaru. Prazan url = isključeno.
+# Može i bilo koji "ping" URL, na primer iz servisa healthchecks.io (tada token ostaje prazan).
+#url = "https://watchdog.example.com/heartbeat"
+#token = "isti-token-kao-u-sekciji-watchdog"
+interval_seconds = 60
+
+# --- Stražar: radi na mašini koja NE ostaje bez struje zajedno sa lokacijom (npr. VPS) -------------
+
+[watchdog]
+host = "127.0.0.1"             # "0.0.0.0" samo ako ispred nema reverse proxy-ja (vidi README)
+port = 8787
+#token = "..."                 # najmanje 16 znakova:  python3 -c 'import secrets; print(secrets.token_urlsafe(32))'
+timeout_seconds = 180          # toliko tišine (oko 3 propuštena signala) pa alarm
